@@ -10,7 +10,8 @@
     "start": "node src/cli.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "vscode": "^1.110.0"
   },
   "keywords": ["git", "commit", "ai", "gemini", "cli"],
   "license": "MIT",
