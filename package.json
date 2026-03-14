@@ -1,0 +1,22 @@
+{
+  "name": "commit-jugaadism",
+  "version": "1.0.0",
+  "description": "Terminal tool that reads git changes and auto-commits with AI-generated messages via Gemini",
+  "type": "module",
+  "bin": {
+    "commit-ai": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": ["git", "commit", "ai", "gemini", "cli"],
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "simple-git": "^3.25.0"
+  }
+}
