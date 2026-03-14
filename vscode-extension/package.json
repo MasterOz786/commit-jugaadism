@@ -1,0 +1,51 @@
+{
+  "name": "commit-jugaadism",
+  "displayName": "Commit Jugaadism",
+  "description": "AI-powered git commit: reads your changes, generates a conventional commit message with Gemini, and commits.",
+  "version": "1.0.0",
+  "publisher": "commit-jugaadism",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MasterOz786/commit-jugaadism"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other",
+    "SCM Providers"
+  ],
+  "activationEvents": [
+    "onCommand:commitJugaadism.commit",
+    "onCommand:commitJugaadism.commitDryRun"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "commitJugaadism.commit",
+        "title": "Commit with AI (Commit Jugaadism)"
+      },
+      {
+        "command": "commitJugaadism.commitDryRun",
+        "title": "Commit with AI: Preview message only (dry run)"
+      }
+    ],
+    "configuration": {
+      "title": "Commit Jugaadism",
+      "properties": {
+        "commitJugaadism.geminiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Gemini API key for generating commit messages. Get one at https://aistudio.google.com/apikey"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "simple-git": "^3.25.0"
+  }
+}

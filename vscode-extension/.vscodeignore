@@ -1,0 +1,8 @@
+.gitignore
+node_modules/.bin
+.DS_Store
+.env
+.env.example
+*.log
+.vscode/**
+PUBLISHING.md
