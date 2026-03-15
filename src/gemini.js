@@ -27,5 +27,5 @@ export async function generateCommitMessage(options) {
     throw new Error('Gemini did not return a valid commit message.');
   }
 
-  return text.trim().replace(/^["']|["']$/g, '').split('\n')[0].trim();
+  return text.trim().replace(/^["']|["']$/g, '').trim();
 }
