@@ -1,0 +1,14 @@
+{
+  "name": "commit-jugaadism-worker",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for commit-jugaadism: generates commit messages via Gemini",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.73.0"
+  }
+}

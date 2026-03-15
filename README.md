@@ -32,6 +32,8 @@ npm install -g .
 
 2. The CLI loads `GEMINI_API_KEY` from your environment. If you run it from the project directory, it will also load from a `.env` file in the current working directory (via `dotenv`). Otherwise export it in your shell (see shell setup below).
 
+**Optional — Cloudflare Worker:** To hide your API key on a server, you can deploy the Worker in `worker/` and set `COMMIT_JUGAADISM_WORKER_URL` to your Worker URL. The CLI will then send `status` and `diff` to the Worker and use the returned commit message. See [commit-jugaadism-cloudflare-worker-guide.md](commit-jugaadism-cloudflare-worker-guide.md).
+
 ## Shell setup (alias + env)
 
 Use one of the following depending on your shell. Replace `/path/to/commit-jugaadism` with the actual path to this repo (e.g. `$HOME/projects/commit-jugaadism`).

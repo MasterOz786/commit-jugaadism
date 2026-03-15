@@ -9,7 +9,7 @@ import {
   commit,
   hasChangesToCommit,
 } from './git.js';
-import { generateCommitMessage } from './gemini.js';
+import { getCommitMessage } from './gemini.js';
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -46,9 +46,9 @@ async function run() {
 
   let message;
   try {
-    message = await generateCommitMessage({ status, diff });
+    message = await getCommitMessage({ status, diff });
   } catch (err) {
-    if (err.message?.includes('GEMINI_API_KEY')) {
+    if (err.message?.includes('GEMINI_API_KEY') || err.message?.includes('WORKER')) {
       console.error(err.message);
     } else {
       console.error('Failed to generate commit message:', err.message);
