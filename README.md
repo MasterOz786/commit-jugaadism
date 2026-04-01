@@ -2,7 +2,7 @@
 
 One command: stage changes, generate a conventional commit message (title + description) with AI, and commit. No more manual commit messages.
 
-Uses **[OpenRouter](https://openrouter.ai)** so you can pick any model on their catalog—including many **free** models (e.g. `nvidia/nemotron-3-super-120b-a12b:free`, `minimax/minimax-m2.5:free`). No Gemini-specific dependency.
+Uses **[OpenRouter](https://openrouter.ai)** — same model ids as in Cursor’s OpenRouter list. Default model is **`stepfun/step-3.5-flash:free`**; you can switch to other free tiers (e.g. Nemotron Super, Qwen Next, Minimax) via `OPENROUTER_MODEL` or see [`src/openrouter-models.js`](src/openrouter-models.js).
 
 ---
 
@@ -54,7 +54,7 @@ Instructions below use **npm** and **npx**. If you use pnpm or yarn instead, use
    ```bash
    cp .env.example .env
    ```
-   Set `OPENROUTER_API_KEY`. Optionally set `OPENROUTER_MODEL` (default: `nvidia/nemotron-3-super-120b-a12b:free`).
+   Set `OPENROUTER_API_KEY`. Optionally set `OPENROUTER_MODEL` (default: `stepfun/step-3.5-flash:free`; presets in `src/openrouter-models.js`).
 
 2. The CLI loads `.env` when run from this project (via `dotenv`) or uses your environment.
 
@@ -101,6 +101,7 @@ commit-ai --no-stage
 alias cja="commit-ai"
 export OPENROUTER_API_KEY="your_key"
 # Optional: export OPENROUTER_MODEL="nvidia/nemotron-3-super-120b-a12b:free"
+# (default is stepfun/step-3.5-flash:free — see src/openrouter-models.js)
 # Or: export COMMIT_JUGAADISM_WORKER_URL="https://..."
 ```
 

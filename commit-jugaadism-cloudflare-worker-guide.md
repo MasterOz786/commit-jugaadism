@@ -16,6 +16,8 @@ npm run deploy
 
 Use an API key from [openrouter.ai/keys](https://openrouter.ai/keys), not Google AI Studio.
 
+**Model:** `worker/wrangler.toml` `[vars]` `OPENROUTER_MODEL` defaults to `stepfun/step-3.5-flash:free`. Other Cursor-style free ids are listed in [`src/openrouter-models.js`](src/openrouter-models.js); change the var and redeploy to switch.
+
 ## Troubleshooting
 
 ### `Worker error (502): Gemini API error` (or `details` mentioning `ai.google.dev`)

@@ -1,5 +1,8 @@
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
+/** Keep in sync with src/openrouter-models.js DEFAULT_OPENROUTER_MODEL */
+const DEFAULT_OPENROUTER_MODEL = "stepfun/step-3.5-flash:free";
+
 function buildPrompt(status, diff) {
   return `You are a commit message generator. Given the following git status and diff, produce a conventional commit message with:
 
@@ -36,7 +39,7 @@ export default {
 
     const model =
       (env.OPENROUTER_MODEL && env.OPENROUTER_MODEL.trim()) ||
-      "nvidia/nemotron-3-super-120b-a12b:free";
+      DEFAULT_OPENROUTER_MODEL;
 
     let body;
     try {

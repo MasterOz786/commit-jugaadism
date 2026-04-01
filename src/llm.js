@@ -1,7 +1,7 @@
 import { buildCommitMessagePrompt } from './prompt.js';
+import { DEFAULT_OPENROUTER_MODEL } from './openrouter-models.js';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const DEFAULT_MODEL = 'nvidia/nemotron-3-super-120b-a12b:free';
 
 const WORKER_URL = process.env.COMMIT_JUGAADISM_WORKER_URL;
 
@@ -46,7 +46,8 @@ export async function generateCommitMessage(options) {
     );
   }
 
-  const model = (process.env.OPENROUTER_MODEL || '').trim() || DEFAULT_MODEL;
+  const model =
+    (process.env.OPENROUTER_MODEL || '').trim() || DEFAULT_OPENROUTER_MODEL;
   const prompt = buildCommitMessagePrompt(options);
 
   const headers = {
