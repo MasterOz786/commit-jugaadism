@@ -1,5 +1,8 @@
 import { buildCommitMessagePrompt } from './prompt.js';
-import { DEFAULT_OPENROUTER_MODEL } from './openrouter-models.js';
+import {
+  DEFAULT_OPENROUTER_MODEL,
+  openRouterModelAttemptOrder,
+} from './openrouter-models.js';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
@@ -46,8 +49,9 @@ export async function generateCommitMessage(options) {
     );
   }
 
-  const model =
+  const primary =
     (process.env.OPENROUTER_MODEL || '').trim() || DEFAULT_OPENROUTER_MODEL;
+  const models = openRouterModelAttemptOrder(primary);
   const prompt = buildCommitMessagePrompt(options);
 
   const headers = {
@@ -58,30 +62,39 @@ export async function generateCommitMessage(options) {
   if (referer) headers['HTTP-Referer'] = referer;
   headers['X-Title'] = 'commit-jugaadism';
 
-  const res = await fetch(OPENROUTER_URL, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      model,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
+  const failures = [];
+  for (const model of models) {
+    const res = await fetch(OPENROUTER_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const err =
-      data?.error?.message ||
-      data?.error ||
-      (typeof data === 'string' ? data : JSON.stringify(data));
-    throw new Error(`OpenRouter error (${res.status}): ${err}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err =
+        data?.error?.message ||
+        data?.error ||
+        (typeof data === 'string' ? data : JSON.stringify(data));
+      failures.push(`${model} (${res.status}): ${err}`);
+      continue;
+    }
+
+    const text = data?.choices?.[0]?.message?.content;
+    if (!text || typeof text !== 'string') {
+      failures.push(`${model}: no text in response`);
+      continue;
+    }
+
+    return text.trim().replace(/^["']|["']$/g, '').trim();
   }
 
-  const text = data?.choices?.[0]?.message?.content;
-  if (!text || typeof text !== 'string') {
-    throw new Error('OpenRouter did not return a valid commit message.');
-  }
-
-  return text.trim().replace(/^["']|["']$/g, '').trim();
+  throw new Error(
+    `OpenRouter: all models failed — ${failures.join(' | ')}`
+  );
 }
 
 /**

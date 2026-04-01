@@ -12,3 +12,31 @@ export const OPENROUTER_MODEL_PRESETS = {
 
 /** Default when OPENROUTER_MODEL is unset */
 export const DEFAULT_OPENROUTER_MODEL = OPENROUTER_MODEL_PRESETS.stepfunFlash;
+
+/**
+ * Order used when the primary model fails (HTTP error or empty content).
+ * Keep OPENROUTER_MODEL first in attempts; then try these in order (deduped).
+ */
+export const OPENROUTER_MODEL_FALLBACK_CHAIN = [
+  OPENROUTER_MODEL_PRESETS.stepfunFlash,
+  OPENROUTER_MODEL_PRESETS.nemotronSuper,
+  OPENROUTER_MODEL_PRESETS.qwenNextInstructFree,
+  OPENROUTER_MODEL_PRESETS.nemotronNano,
+  OPENROUTER_MODEL_PRESETS.minimaxM25Free,
+];
+
+/**
+ * @param {string} primary
+ * @returns {string[]}
+ */
+export function openRouterModelAttemptOrder(primary) {
+  const seen = new Set();
+  const order = [];
+  for (const id of [primary, ...OPENROUTER_MODEL_FALLBACK_CHAIN]) {
+    const trimmed = (id || '').trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    order.push(trimmed);
+  }
+  return order;
+}

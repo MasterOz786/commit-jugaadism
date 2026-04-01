@@ -10,7 +10,7 @@ Uses **[OpenRouter](https://openrouter.ai)** — same model ids as in Cursor’s
 
 - **Stop wasting time** — No more “what do I write?” or asking your IDE to draft a commit message. Change code, run one command, done.
 - **Better history** — Messages are conventional (`feat:`, `fix:`, `chore:`) with a short title and a 2–4 sentence description of what actually changed.
-- **Pick your model** — Set `OPENROUTER_MODEL` to match whatever you use in Cursor/OpenRouter (free or paid).
+- **Pick your model** — Set `OPENROUTER_MODEL` to your preferred id; if that model errors or returns nothing, the CLI (and Worker) automatically try the other preset free models in order.
 - **Simple setup** — Install the CLI, set one API key (or use a shared Worker URL), and you’re done.
 - **Share with a team** — Deploy the optional Cloudflare Worker once; share the URL. Teammates use the CLI with no API keys on their machines—only the deployer ever touches the key.
 

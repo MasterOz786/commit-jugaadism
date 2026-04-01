@@ -1,7 +1,26 @@
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-/** Keep in sync with src/openrouter-models.js DEFAULT_OPENROUTER_MODEL */
+/** Keep in sync with src/openrouter-models.js */
 const DEFAULT_OPENROUTER_MODEL = "stepfun/step-3.5-flash:free";
+const OPENROUTER_MODEL_FALLBACK_CHAIN = [
+  "stepfun/step-3.5-flash:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "qwen/qwen3-next-80b-a3b-instruct:free",
+  "nvidia/nemotron-3-nano-30b-a3b:free",
+  "minimax/minimax-m2.5:free",
+];
+
+function modelAttemptOrder(primary) {
+  const seen = new Set();
+  const order = [];
+  for (const id of [primary, ...OPENROUTER_MODEL_FALLBACK_CHAIN]) {
+    const t = (id || "").trim();
+    if (!t || seen.has(t)) continue;
+    seen.add(t);
+    order.push(t);
+  }
+  return order;
+}
 
 function buildPrompt(status, diff) {
   return `You are a commit message generator. Given the following git status and diff, produce a conventional commit message with:
@@ -37,7 +56,7 @@ export default {
       );
     }
 
-    const model =
+    const primary =
       (env.OPENROUTER_MODEL && env.OPENROUTER_MODEL.trim()) ||
       DEFAULT_OPENROUTER_MODEL;
 
@@ -60,40 +79,58 @@ export default {
     }
 
     const prompt = buildPrompt(status, diff);
-    const res = await fetch(OPENROUTER_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey.trim()}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer":
-          (env.OPENROUTER_HTTP_REFERER && env.OPENROUTER_HTTP_REFERER.trim()) ||
-          "https://github.com/commit-jugaadism",
-        "X-Title": "commit-jugaadism",
+    const headers = {
+      Authorization: `Bearer ${apiKey.trim()}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer":
+        (env.OPENROUTER_HTTP_REFERER && env.OPENROUTER_HTTP_REFERER.trim()) ||
+        "https://github.com/commit-jugaadism",
+      "X-Title": "commit-jugaadism",
+    };
+
+    const failures = [];
+    const models = modelAttemptOrder(primary);
+    for (const model of models) {
+      const res = await fetch(OPENROUTER_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const errText =
+          data !== null && typeof data === "object"
+            ? JSON.stringify(data)
+            : `non-JSON error body`;
+        failures.push(`${model} (${res.status}): ${errText}`);
+        continue;
+      }
+
+      if (!data) {
+        failures.push(`${model}: invalid JSON response`);
+        continue;
+      }
+
+      const text = data?.choices?.[0]?.message?.content;
+      if (!text || typeof text !== "string") {
+        failures.push(`${model}: no text in response`);
+        continue;
+      }
+
+      const commitMessage = text.trim().replace(/^["']|["']$/g, "").trim();
+      return Response.json({ commitMessage });
+    }
+
+    return Response.json(
+      {
+        error: "OpenRouter API error",
+        details: `all models failed — ${failures.join(" | ")}`,
       },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      return Response.json(
-        { error: "OpenRouter API error", details: errText },
-        { status: 502 }
-      );
-    }
-
-    const data = await res.json();
-    const text = data?.choices?.[0]?.message?.content;
-    if (!text || typeof text !== "string") {
-      return Response.json(
-        { error: "OpenRouter returned no text", raw: data },
-        { status: 502 }
-      );
-    }
-
-    const commitMessage = text.trim().replace(/^["']|["']$/g, "").trim();
-    return Response.json({ commitMessage });
+      { status: 502 }
+    );
   },
 };

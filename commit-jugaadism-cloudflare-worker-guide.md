@@ -16,7 +16,7 @@ npm run deploy
 
 Use an API key from [openrouter.ai/keys](https://openrouter.ai/keys), not Google AI Studio.
 
-**Model:** `worker/wrangler.toml` `[vars]` `OPENROUTER_MODEL` defaults to `stepfun/step-3.5-flash:free`. Other Cursor-style free ids are listed in [`src/openrouter-models.js`](src/openrouter-models.js); change the var and redeploy to switch.
+**Model:** `worker/wrangler.toml` `[vars]` `OPENROUTER_MODEL` is tried first (default `stepfun/step-3.5-flash:free`). If OpenRouter errors or returns no text, the Worker tries the other preset models in order (same list as `OPENROUTER_MODEL_FALLBACK_CHAIN` in [`src/openrouter-models.js`](src/openrouter-models.js)).
 
 ## Troubleshooting
 
