@@ -9,7 +9,7 @@ import {
   commit,
   hasChangesToCommit,
 } from './git.js';
-import { getCommitMessage } from './gemini.js';
+import { getCommitMessage } from './llm.js';
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -48,7 +48,11 @@ async function run() {
   try {
     message = await getCommitMessage({ status, diff });
   } catch (err) {
-    if (err.message?.includes('GEMINI_API_KEY') || err.message?.includes('WORKER')) {
+    if (
+      err.message?.includes('OPENROUTER_API_KEY') ||
+      err.message?.includes('WORKER') ||
+      err.message?.includes('OpenRouter')
+    ) {
       console.error(err.message);
     } else {
       console.error('Failed to generate commit message:', err.message);

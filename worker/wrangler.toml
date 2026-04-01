@@ -3,3 +3,7 @@ main = "src/index.js"
 compatibility_date = "2024-12-01"
 workers_dev = true
 preview_urls = true
+
+# Optional: change model without redeploying secrets (see https://openrouter.ai/models)
+[vars]
+OPENROUTER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"

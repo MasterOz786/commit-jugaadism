@@ -2,7 +2,7 @@
   "name": "commit-jugaadism-worker",
   "private": true,
   "version": "1.0.0",
-  "description": "Cloudflare Worker for commit-jugaadism: generates commit messages via Gemini",
+  "description": "Cloudflare Worker for commit-jugaadism: generates commit messages via OpenRouter",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",

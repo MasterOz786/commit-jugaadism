@@ -2,13 +2,16 @@
 
 One command: stage changes, generate a conventional commit message (title + description) with AI, and commit. No more manual commit messages.
 
+Uses **[OpenRouter](https://openrouter.ai)** so you can pick any model on their catalog—including many **free** models (e.g. `nvidia/nemotron-3-super-120b-a12b:free`, `minimax/minimax-m2.5:free`). No Gemini-specific dependency.
+
 ---
 
 ## Why use it
 
 - **Stop wasting time** — No more “what do I write?” or asking your IDE to draft a commit message. Change code, run one command, done.
 - **Better history** — Messages are conventional (`feat:`, `fix:`, `chore:`) with a short title and a 2–4 sentence description of what actually changed.
-- **Simple setup** — Install the CLI, set one env var (or use a shared Worker URL), and you’re done.
+- **Pick your model** — Set `OPENROUTER_MODEL` to match whatever you use in Cursor/OpenRouter (free or paid).
+- **Simple setup** — Install the CLI, set one API key (or use a shared Worker URL), and you’re done.
 - **Share with a team** — Deploy the optional Cloudflare Worker once; share the URL. Teammates use the CLI with no API keys on their machines—only the deployer ever touches the key.
 
 ---
@@ -22,8 +25,8 @@ One command: stage changes, generate a conventional commit message (title + desc
    ```
 
 2. **Set one of these**
-   - **Team:** Someone deploys the Worker once and shares the URL; you set `COMMIT_JUGAADISM_WORKER_URL=https://commit-jugaadism.commititt.workers.dev` to that URL. No API key needed.
-   - **Solo:** Get a [Gemini API key](https://aistudio.google.com/apikey) and set `GEMINI_API_KEY` (e.g. in `.env` or your shell).
+   - **Team:** Someone deploys the Worker once and shares the URL; you set `COMMIT_JUGAADISM_WORKER_URL`. No API key on your machine.
+   - **Solo:** Get an [OpenRouter API key](https://openrouter.ai/keys), set `OPENROUTER_API_KEY` in `.env` or your shell (see `.env.example`). Optionally set `OPENROUTER_MODEL` to a model id from [openrouter.ai/models](https://openrouter.ai/models).
 
 3. **Run** (from any git repo with changes)
    ```bash
@@ -37,37 +40,42 @@ That’s it. Use `commit-ai --dry-run` to only see the message; `commit-ai --no-
 ## Requirements
 
 - Node.js 20+
-- Either: a [Gemini API key](https://aistudio.google.com/apikey) (local), or a Worker URL shared with you (no key)
+- Either: an [OpenRouter](https://openrouter.ai/keys) key (local), or a Worker URL shared with you (no key)
+
+Instructions below use **npm** and **npx**. If you use pnpm or yarn instead, use the same commands with your tool’s equivalents (`pnpm install`, `pnpm exec wrangler`, etc.).
 
 ---
 
 ## Setup (detailed)
 
-### Option A — Local (your own API key)
+### Option A — Local (your own OpenRouter key)
 
-1. Copy the example env and add your key:
+1. Copy the example env:
    ```bash
    cp .env.example .env
-   # Edit .env: GEMINI_API_KEY=your_key
    ```
-2. The CLI loads `GEMINI_API_KEY` from `.env` (when run from this project) or from your environment.
+   Set `OPENROUTER_API_KEY`. Optionally set `OPENROUTER_MODEL` (default: `nvidia/nemotron-3-super-120b-a12b:free`).
+
+2. The CLI loads `.env` when run from this project (via `dotenv`) or uses your environment.
 
 ### Option B — Cloudflare Worker (key in Cloudflare, not on your machine)
 
-1. **One person** deploys the Worker once (see [Cloudflare Worker guide](commit-jugaadism-cloudflare-worker-guide.md)):
+1. **One person** deploys the Worker once — see [commit-jugaadism-cloudflare-worker-guide.md](commit-jugaadism-cloudflare-worker-guide.md):
    ```bash
    cd worker
    npm install
    npx wrangler login
-   npx wrangler secret put GEMINI_API_KEY   # paste key once; stored in Cloudflare
+   npx wrangler secret put OPENROUTER_API_KEY
    npm run deploy
    ```
-2. **Everyone** (including the deployer) sets only the Worker URL—no API key:
+2. **Everyone** sets only the Worker URL:
    ```bash
    export COMMIT_JUGAADISM_WORKER_URL="https://commit-jugaadism.<your-subdomain>.workers.dev"
    ```
 
-**Sharing:** Deploy once, share the **Worker URL**. Others install the CLI, set that URL, run `commit-ai`. No Gemini key or Wrangler for them.
+**Sharing:** Deploy once, share the **Worker URL**. Others install the CLI, set that URL, run `commit-ai`. No OpenRouter key or Wrangler for them.
+
+**Migrating from an old Worker** that used `GEMINI_API_KEY`: remove that secret, add `OPENROUTER_API_KEY`, redeploy (see the Cloudflare guide).
 
 ---
 
@@ -76,58 +84,41 @@ That’s it. Use `commit-ai --dry-run` to only see the message; `commit-ai --no-
 From inside a git repo:
 
 ```bash
-# Stage all, generate message, commit
 commit-ai
-# or with alias:
-cja
+cja   # if you aliased it
 
-# Preview the message only (no commit)
 commit-ai --dry-run
-
-# Use only already-staged changes (no git add)
 commit-ai --no-stage
 ```
-
-Messages are conventional with a title and a short description of what changed.
 
 ---
 
 ## Shell alias
 
-**Zsh / Bash** — add to `~/.zshrc` or `~/.bashrc`:
+**Zsh / Bash:**
 
 ```bash
-alias cja="commit-ai"   # if you ran npm link
-export GEMINI_API_KEY="your_key"
-# Or with Worker: export COMMIT_JUGAADISM_WORKER_URL="https://..."
+alias cja="commit-ai"
+export OPENROUTER_API_KEY="your_key"
+# Optional: export OPENROUTER_MODEL="nvidia/nemotron-3-super-120b-a12b:free"
+# Or: export COMMIT_JUGAADISM_WORKER_URL="https://..."
 ```
 
-If you don’t install globally, use the full path:
-
-```bash
-alias cja="node /path/to/commit-jugaadism/src/cli.js"
-```
-
-Then run `source ~/.zshrc` (or `~/.bashrc`).
-
-**PowerShell** — add to `$PROFILE`:
+**PowerShell:**
 
 ```powershell
 Set-Alias -Name cja -Value commit-ai
-$env:GEMINI_API_KEY = "your_key"
+$env:OPENROUTER_API_KEY = "your_key"
 # Or: $env:COMMIT_JUGAADISM_WORKER_URL = "https://..."
 ```
-
-Reload: `. $PROFILE`
 
 ---
 
 ## Cloudflare Worker (optional)
 
-The `worker/` folder is a small server that calls Gemini for you. One person deploys it and adds the API key via `wrangler secret put`; after that, everyone uses the Worker URL. Good for teams—one key, stored only in Cloudflare.
+The Worker calls OpenRouter with a server-side key. Model defaults are in `worker/wrangler.toml` `[vars]`. See [commit-jugaadism-cloudflare-worker-guide.md](commit-jugaadism-cloudflare-worker-guide.md).
 
-- Deploy: `cd worker && npm run deploy`
-- Full guide: [commit-jugaadism-cloudflare-worker-guide.md](commit-jugaadism-cloudflare-worker-guide.md)
+**If you see `Worker error (502): Gemini API error`:** your deployed Worker is outdated. Redeploy from this repo and set `OPENROUTER_API_KEY` with a key from [openrouter.ai/keys](https://openrouter.ai/keys) (`cd worker && npx wrangler secret put OPENROUTER_API_KEY && npx wrangler deploy`).
 
 ---
 

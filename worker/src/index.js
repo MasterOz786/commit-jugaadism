@@ -1,5 +1,4 @@
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 function buildPrompt(status, diff) {
   return `You are a commit message generator. Given the following git status and diff, produce a conventional commit message with:
@@ -21,16 +20,23 @@ Output only the commit message.`;
 export default {
   async fetch(request, env) {
     if (request.method !== "POST") {
-      return new Response("POST only", { status: 405, headers: { "Allow": "POST" } });
+      return new Response("POST only", { status: 405, headers: { Allow: "POST" } });
     }
 
-    const apiKey = env.GEMINI_API_KEY;
+    const apiKey = env.OPENROUTER_API_KEY;
     if (!apiKey || !apiKey.trim()) {
       return Response.json(
-        { error: "Worker missing GEMINI_API_KEY. Run: wrangler secret put GEMINI_API_KEY" },
+        {
+          error:
+            "Worker missing OPENROUTER_API_KEY. Run: npx wrangler secret put OPENROUTER_API_KEY",
+        },
         { status: 500 }
       );
     }
+
+    const model =
+      (env.OPENROUTER_MODEL && env.OPENROUTER_MODEL.trim()) ||
+      "nvidia/nemotron-3-super-120b-a12b:free";
 
     let body;
     try {
@@ -51,27 +57,35 @@ export default {
     }
 
     const prompt = buildPrompt(status, diff);
-    const res = await fetch(`${GEMINI_URL}?key=${encodeURIComponent(apiKey)}`, {
+    const res = await fetch(OPENROUTER_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${apiKey.trim()}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer":
+          (env.OPENROUTER_HTTP_REFERER && env.OPENROUTER_HTTP_REFERER.trim()) ||
+          "https://github.com/commit-jugaadism",
+        "X-Title": "commit-jugaadism",
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        model,
+        messages: [{ role: "user", content: prompt }],
       }),
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      const errText = await res.text();
       return Response.json(
-        { error: "Gemini API error", details: err },
+        { error: "OpenRouter API error", details: errText },
         { status: 502 }
       );
     }
 
     const data = await res.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = data?.choices?.[0]?.message?.content;
     if (!text || typeof text !== "string") {
       return Response.json(
-        { error: "Gemini returned no text", raw: data },
+        { error: "OpenRouter returned no text", raw: data },
         { status: 502 }
       );
     }

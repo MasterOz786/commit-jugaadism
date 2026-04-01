@@ -1,5 +1,5 @@
 /**
- * Build the prompt sent to Gemini for commit message generation.
+ * Build the prompt sent to the LLM (OpenRouter) for commit message generation.
  * @param {{ status: string; diff: string; includeFiles?: boolean }} options
  * @returns {string}
  */
