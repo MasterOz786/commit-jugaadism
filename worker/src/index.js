@@ -123,7 +123,7 @@ export default {
       }
 
       const commitMessage = text.trim().replace(/^["']|["']$/g, "").trim();
-      return Response.json({ commitMessage });
+      return Response.json({ commitMessage, model });
     }
 
     return Response.json(

@@ -44,9 +44,9 @@ async function run() {
     getDiff({ staged: true, cwd }),
   ]);
 
-  let message;
+  let result;
   try {
-    message = await getCommitMessage({ status, diff });
+    result = await getCommitMessage({ status, diff });
   } catch (err) {
     if (
       err.message?.includes('OPENROUTER_API_KEY') ||
@@ -60,14 +60,18 @@ async function run() {
     process.exit(1);
   }
 
+  const { message, model } = result;
+
   if (dryRun) {
     console.log(message);
+    console.log(`\nModel: ${model}`);
     process.exit(0);
   }
 
   try {
     await commit(message, cwd);
     console.log('Committed:', message);
+    console.log(`Model: ${model}`);
   } catch (err) {
     console.error('Commit failed:', err.message);
     process.exit(1);

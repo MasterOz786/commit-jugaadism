@@ -33,7 +33,7 @@ export async function generateCommitMessageFromWorker(options) {
   if (!message || typeof message !== 'string') {
     throw new Error('Worker did not return commitMessage.');
   }
-  return message.trim();
+  return { message: message.trim(), model: data.model || 'unknown' };
 }
 
 /**
@@ -89,7 +89,7 @@ export async function generateCommitMessage(options) {
       continue;
     }
 
-    return text.trim().replace(/^["']|["']$/g, '').trim();
+    return { message: text.trim().replace(/^["']|["']$/g, '').trim(), model };
   }
 
   throw new Error(
