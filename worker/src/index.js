@@ -1,7 +1,8 @@
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 /** Keep in sync with src/openrouter-models.js */
-const DEFAULT_OPENROUTER_MODEL = "stepfun/step-3.5-flash:free";
+// const DEFAULT_OPENROUTER_MODEL = "stepfun/step-3.5-flash:free";
+const DEFAULT_OPENROUTER_MODEL = "qwen/qwen3.6-plus:free";
 const OPENROUTER_MODEL_FALLBACK_CHAIN = [
   "stepfun/step-3.5-flash:free",
   "nvidia/nemotron-3-super-120b-a12b:free",
