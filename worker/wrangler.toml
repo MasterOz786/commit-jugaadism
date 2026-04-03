@@ -6,4 +6,4 @@ preview_urls = true
 
 # Optional: change model without redeploying secrets (see https://openrouter.ai/models)
 [vars]
-OPENROUTER_MODEL = "stepfun/step-3.5-flash:free"
+OPENROUTER_MODEL = "qwen/qwen3.6-plus:free"
