@@ -2,16 +2,16 @@
 
 One command: stage changes, generate a conventional commit message (title + description) with AI, and commit. No more manual commit messages.
 
-Uses **[OpenRouter](https://openrouter.ai)** — same model ids as in Cursor’s OpenRouter list. Default model is **`stepfun/step-3.5-flash:free`**; you can switch to other free tiers (e.g. Nemotron Super, Qwen Next, Minimax) via `OPENROUTER_MODEL` or see [`src/openrouter-models.js`](src/openrouter-models.js).
+Uses **[OpenRouter](https://openrouter.ai)** — same model ids as in Cursor's OpenRouter list. Default model is **`stepfun/step-3.5-flash:free`**; you can switch to other free tiers (e.g. Nemotron Super, Qwen Next, Minimax) via `OPENROUTER_MODEL` or see [`src/openrouter-models.js`](src/openrouter-models.js).
 
 ---
 
 ## Why use it
 
-- **Stop wasting time** — No more “what do I write?” or asking your IDE to draft a commit message. Change code, run one command, done.
+- **Stop wasting time** — No more "what do I write?" or asking your IDE to draft a commit message. Change code, run one command, done.
 - **Better history** — Messages are conventional (`feat:`, `fix:`, `chore:`) with a short title and a 2–4 sentence description of what actually changed.
 - **Pick your model** — Set `OPENROUTER_MODEL` to your preferred id; if that model errors or returns nothing, the CLI (and Worker) automatically try the other preset free models in order.
-- **Simple setup** — Install the CLI, set one API key (or use a shared Worker URL), and you’re done.
+- **Simple setup** — Install the CLI, set one API key (or use a shared Worker URL), and you're done.
 - **Share with a team** — Deploy the optional Cloudflare Worker once; share the URL. Teammates use the CLI with no API keys on their machines—only the deployer ever touches the key.
 
 ---
@@ -33,7 +33,24 @@ Uses **[OpenRouter](https://openrouter.ai)** — same model ids as in Cursor’s
    commit-ai
    ```
 
-That’s it. Use `commit-ai --dry-run` to only see the message; `commit-ai --no-stage` to use only already-staged changes.
+That's it. Use `commit-ai --dry-run` to only see the message; `commit-ai --no-stage` to use only already-staged changes.
+
+---
+
+## Example Output
+
+Run `commit-ai --dry-run` to preview a generated commit message before committing:
+
+```
+feat: add user authentication with JWT tokens
+
+- Implemented login and registration endpoints in the auth router
+- Added JWT token generation and validation middleware
+- Integrated bcrypt for password hashing before storing in the database
+- Created protected route wrappers that verify token expiration and validity
+```
+
+Messages follow [Conventional Commits](https://www.conventionalcommits.org/) with a type prefix (`feat:`, `fix:`, `chore:`, etc.) and a short description of what actually changed.
 
 ---
 
@@ -42,7 +59,7 @@ That’s it. Use `commit-ai --dry-run` to only see the message; `commit-ai --no-
 - Node.js 20+
 - Either: an [OpenRouter](https://openrouter.ai/keys) key (local), or a Worker URL shared with you (no key)
 
-Instructions below use **npm** and **npx**. If you use pnpm or yarn instead, use the same commands with your tool’s equivalents (`pnpm install`, `pnpm exec wrangler`, etc.).
+Instructions below use **npm** and **npx**. If you use pnpm or yarn instead, use the same commands with your tool's equivalents (`pnpm install`, `pnpm exec wrangler`, etc.).
 
 ---
 
